@@ -19,8 +19,12 @@ from fastapi import HTTPException
 logger = logging.getLogger(__name__)
 
 EMAIL_BASE_URL = "https://integrations.emergentagent.com"
-EMAIL_KEY = os.environ["EMERGENT_EMAIL_KEY"]
-EMAIL_FROM_NAME = os.environ["EMAIL_FROM_NAME"]
+EMERGENT_EMAIL_KEY = os.environ.get("EMERGENT_EMAIL_KEY", "").strip()
+RESEND_API_KEY = os.environ.get("RESEND_API_KEY", "").strip()
+RESEND_FROM = os.environ.get(
+    "RESEND_FROM", "Vértice Sports <noreply@verticesports.ia.br>"
+).strip()
+EMAIL_FROM_NAME = os.environ.get("EMAIL_FROM_NAME", "Vértice Sports")
 EMAIL_REPLY_TO = os.environ.get("EMAIL_REPLY_TO")
 APP_PUBLIC_URL = os.environ.get("APP_PUBLIC_URL", "https://verticesports.ia.br").rstrip("/")
 
@@ -100,20 +104,55 @@ def _assert_safe_email(subject: str, html: str) -> None:
 
 
 # ---------- Send ----------
-async def _send_email(*, to: str, subject: str, html: str) -> str | None:
-    _assert_safe_email(subject, html)
+async def _send_via_resend_direct(*, to: str, subject: str, html: str) -> str | None:
+    """Direct Resend API (for external hosting). Requires RESEND_API_KEY + verified domain."""
+    payload = {"from": RESEND_FROM, "to": [to], "subject": subject, "html": html}
+    if EMAIL_REPLY_TO:
+        payload["reply_to"] = EMAIL_REPLY_TO
+    async with httpx.AsyncClient(timeout=30) as client:
+        resp = await client.post(
+            "https://api.resend.com/emails",
+            headers={
+                "Authorization": f"Bearer {RESEND_API_KEY}",
+                "Content-Type": "application/json",
+            },
+            json=payload,
+        )
+    resp.raise_for_status()
+    return resp.json().get("id")
+
+
+async def _send_via_emergent_proxy(*, to: str, subject: str, html: str) -> str | None:
+    """Emergent-managed Resend proxy (works only inside Emergent infra)."""
     payload = {"to": [to], "subject": subject, "html": html, "from_name": EMAIL_FROM_NAME}
     if EMAIL_REPLY_TO:
         payload["contact_email"] = EMAIL_REPLY_TO
+    async with httpx.AsyncClient(timeout=30) as client:
+        resp = await client.post(
+            f"{EMAIL_BASE_URL}/api/v1/email/send",
+            headers={"X-Email-Key": EMERGENT_EMAIL_KEY},
+            json=payload,
+        )
+    resp.raise_for_status()
+    return resp.json().get("id")
+
+
+async def _send_email(*, to: str, subject: str, html: str) -> str | None:
+    _assert_safe_email(subject, html)
+    # Prefer direct Resend when RESEND_API_KEY is provided (external hosting).
+    # Fallback to Emergent-managed proxy when only EMERGENT_EMAIL_KEY is set.
     try:
-        async with httpx.AsyncClient(timeout=30) as client:
-            resp = await client.post(
-                f"{EMAIL_BASE_URL}/api/v1/email/send",
-                headers={"X-Email-Key": EMAIL_KEY},
-                json=payload,
-            )
-        resp.raise_for_status()
-        return resp.json().get("id")
+        if RESEND_API_KEY:
+            logger.info(f"[email] direct Resend -> {to}")
+            return await _send_via_resend_direct(to=to, subject=subject, html=html)
+        if EMERGENT_EMAIL_KEY:
+            logger.info(f"[email] emergent proxy -> {to}")
+            return await _send_via_emergent_proxy(to=to, subject=subject, html=html)
+        logger.warning(
+            "[email] Nenhum provedor configurado (defina RESEND_API_KEY para hospedagem "
+            "externa ou EMERGENT_EMAIL_KEY dentro da Emergent). Envio ignorado."
+        )
+        return None
     except httpx.HTTPStatusError as e:
         logger.error(f"Email send failed: {e.response.status_code} {e.response.text}")
         raise HTTPException(status_code=502, detail="Failed to send email")
