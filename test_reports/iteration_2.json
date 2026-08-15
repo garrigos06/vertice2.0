@@ -1,0 +1,60 @@
+{
+  "summary": "Frontend-only UI/UX testing of Vértice Sports admin area (mobile drawer, quick actions, responsive cards/table, RBAC guard). Executed 25 scenarios across 390px mobile, 1440px desktop viewports using Playwright with page.route() mocks for /api/auth/me, /api/admin/stats, /api/bets/admin/all, /api/admin/users, PATCH/DELETE. All 25 scenarios PASS. yarn build compiles cleanly with no ESLint warnings (useCallback fix in Usuarios.jsx is correct).",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "AdminLayout mobile Sheet drawer", "issues": ["Radix a11y console warnings: 'DialogContent requires a DialogTitle' and 'Missing Description or aria-describedby'. The SheetContent (based on Radix Dialog) should include a visually hidden <SheetTitle> and <SheetDescription> (or aria-describedby={undefined}) for screen reader users. Cosmetic/a11y only – does not block functionality."]}
+    ]
+  },
+  "test_report_links": [],
+  "action_items": [
+    "(Optional/A11y) Add VisuallyHidden SheetTitle + SheetDescription inside the mobile <SheetContent data-testid='admin-mobile-drawer'> in /app/frontend/src/components/layout/AdminLayout.jsx to silence Radix Dialog a11y warnings."
+  ],
+  "critical_code_review_comments": [
+    "Bilhetes.jsx line 60-74: useEffect for search params has 'eslint-disable-next-line react-hooks/exhaustive-deps'. Acceptable here (one-shot on mount), but consider extracting the ?new=1 handling into a useCallback-based effect to align with the pattern established in Usuarios.jsx.",
+    "AdminLayout.jsx correctly closes the drawer on route change via useEffect([location.pathname]) — verified functional.",
+    "Usuarios.jsx load = useCallback with stable [] deps and useEffect([load]) is the correct fix for the eslint warning. Confirmed no build warnings.",
+    "AdminLayout RBAC guard (lines 68-72) correctly redirects both unauthenticated and non-admin users to /login?redirect=/admin. Verified with mocked USER role.",
+    "Role select correctly restricts to only 'USER' option for non-SUPER_ADMIN (disabled when role != USER)."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "N/A (backend not tested per request)", "frontend": "100% (25/25 scenarios)"},
+  "test_credentials": "No real credentials used — mocked /api/auth/me with SUPER_ADMIN user and injected fake vs_token via localStorage init script.",
+  "seed_data_creation": "None (all data mocked via Playwright page.route()).",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Backend (Cloudflare Worker + D1) is intentionally not running in preview env. Any admin UI test must mock /api/auth/me, /api/admin/stats, /api/bets/admin/all, /api/admin/users via page.route() and set localStorage 'vs_token' before navigating. Key data-testids verified working: admin-mobile-menu-btn, admin-mobile-drawer, admin-mobile-logout-btn, mobile-admin-nav-{overview|bilhetes|usuarios|inteligencia|planos|telegram|configuracoes}, quick-actions-section, qa-new-bet/manage-bets/manage-users, admin-bets-mobile-list, admin-bet-card-{id}, bet-action-{green|red|void|toggle-pub|delete}-{id}, users-mobile-list, user-card-{id}, user-plan-{id}, user-role-{id}, user-active-{id}, users-search-input, admin-sidebar. Note: bet-action-* testids exist on BOTH the mobile card AND desktop row; when using Playwright strict selectors on mobile, scope with locator('[data-testid=admin-bet-card-{id}]').locator(...). The desktop table remains in the DOM (hidden md:block) which is expected Tailwind responsive behavior. Logout button in mobile drawer may report x-offscreen coordinate mid-animation; use dispatch_event('click') or wait longer for the slide-in animation.",
+  "detailed_pass_matrix": {
+    "mobile_390px": {
+      "hamburger_visible": "PASS",
+      "sidebar_hidden": "PASS",
+      "drawer_opens_with_7_items_plus_logout": "PASS",
+      "active_item_CCFF00_left_border": "PASS (bg-[#CCFF00]/10 text-[#CCFF00] border-l-2 border-[#CCFF00])",
+      "drawer_closes_and_navigates_on_item_click": "PASS (Bilhetes → /admin/bilhetes)",
+      "dashboard_quick_actions_3_cards": "PASS",
+      "qa_new_bet_opens_form_via_query": "PASS (/admin/bilhetes?new=1 → admin-bet-form visible)",
+      "bilhetes_shows_cards_not_table": "PASS (admin-bets-mobile-list)",
+      "each_card_has_5_action_buttons": "PASS (green/red/void/toggle-pub/delete for b1 & b2)",
+      "usuarios_shows_cards_with_plan_role_active_controls": "PASS",
+      "search_input_no_infinite_loop": "PASS (useCallback + [load] dep working)",
+      "no_horizontal_overflow": "PASS at /admin, /admin/bilhetes, /admin/usuarios (scrollWidth==clientWidth==390)",
+      "mobile_logout_clears_token_and_redirects": "PASS"
+    },
+    "desktop_1440px": {
+      "sidebar_visible": "PASS",
+      "hamburger_hidden": "PASS",
+      "bilhetes_shows_table": "PASS",
+      "usuarios_shows_table": "PASS"
+    },
+    "security": {
+      "no_token_redirects_to_login_with_redirect_param": "PASS",
+      "USER_role_redirected_from_admin": "PASS",
+      "super_admin_sees_all_3_role_options": "PASS (USER/ADMIN/SUPER_ADMIN)"
+    },
+    "build": {
+      "yarn_build_no_eslint_warnings": "PASS (Compiled successfully, no warnings)"
+    }
+  }
+}
