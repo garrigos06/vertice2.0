@@ -1,0 +1,62 @@
+# Render Blueprint — Vértice Sports Backend
+# Uso: no dashboard do Render clique em "New" > "Blueprint" e aponte
+# para o repositório GitHub. Ele lerá este arquivo e criará o serviço.
+services:
+  - type: web
+    name: vertice-sports-api
+    runtime: python
+    plan: starter                       # troque para 'free' se quiser testar antes
+    region: oregon                      # ou 'frankfurt' se preferir Europa
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn server:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/health
+    autoDeploy: true
+    envVars:
+      # === PRIVADOS — preencha manualmente no dashboard Render ===
+      - key: MONGO_URL
+        sync: false                     # Render pedirá o valor no primeiro deploy
+      - key: DB_NAME
+        value: vertice_sports
+      - key: JWT_SECRET
+        generateValue: true             # Render gera automaticamente uma chave forte
+      - key: JWT_ALGORITHM
+        value: HS256
+      - key: JWT_EXPIRE_HOURS
+        value: "168"
+
+      # === CORS + domínio público ===
+      - key: CORS_ORIGINS
+        value: "https://verticesports.ia.br,https://www.verticesports.ia.br"
+      - key: APP_PUBLIC_URL
+        value: "https://verticesports.ia.br"
+
+      # === E-mail (Resend direto) — preencha no dashboard ===
+      - key: RESEND_API_KEY
+        sync: false
+      - key: RESEND_FROM
+        value: "Vértice Sports <noreply@verticesports.ia.br>"
+      - key: EMAIL_FROM_NAME
+        value: "Vértice Sports"
+      - key: EMAIL_REPLY_TO
+        value: "suporteverticesportsio@gmail.com"
+
+      # === Super admin seed (é criado no primeiro startup) ===
+      - key: SEED_SUPER_ADMIN_EMAIL
+        value: "arthurgarrigos1@gmail.com"
+      - key: SEED_SUPER_ADMIN_PASSWORD
+        sync: false                     # preencha manualmente para não vazar no git
+      - key: SEED_SUPER_ADMIN_NAME
+        value: "Arthur Garrigos"
+
+      # === Integrações opcionais (deixe vazias até obter as chaves) ===
+      - key: API_FOOTBALL_KEY
+        sync: false
+      - key: FOOTBALL_DATA_API_KEY
+        sync: false
+      - key: KIWIFY_WEBHOOK_SECRET
+        sync: false
+      - key: TELEGRAM_BOT_TOKEN
+        sync: false
+      - key: TELEGRAM_CHANNEL_ID
+        sync: false
