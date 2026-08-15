@@ -1,0 +1,43 @@
+name = "vertice-sports-api"
+main = "src/entry.py"
+compatibility_flags = ["python_workers"]
+compatibility_date = "2026-08-03"
+
+# Observability + logs
+[observability]
+enabled = true
+
+# ---------- D1 binding ----------
+[[d1_databases]]
+binding = "DB"
+database_name = "vertice-sports"
+database_id = "REPLACE_WITH_YOUR_D1_ID"   # `pywrangler d1 create vertice-sports` gera este ID
+
+# ---------- Rota do Worker ----------
+# Adicione uma zone route em produção para o domínio api.verticesports.ia.br
+# (a zone precisa estar na Cloudflare; ver DEPLOY_CLOUDFLARE.md)
+# [[routes]]
+# pattern = "api.verticesports.ia.br/*"
+# zone_name = "verticesports.ia.br"
+# custom_domain = true
+
+# ---------- Environments ----------
+# `pywrangler deploy --env production` usa este bloco.
+[env.production]
+name = "vertice-sports-api"
+
+[[env.production.d1_databases]]
+binding = "DB"
+database_name = "vertice-sports"
+database_id = "REPLACE_WITH_YOUR_D1_ID"
+
+# NUNCA colocar secrets aqui. Use `pywrangler secret put NAME` (ver .dev.vars.example).
+# Variáveis públicas (não sensíveis) podem ficar em [vars]:
+[vars]
+APP_PUBLIC_URL = "https://verticesports.ia.br"
+CORS_ORIGINS = "https://verticesports.ia.br,https://www.verticesports.ia.br"
+EMAIL_FROM_NAME = "Vértice Sports"
+RESEND_FROM = "Vértice Sports <noreply@verticesports.ia.br>"
+EMAIL_REPLY_TO = "suporteverticesportsio@gmail.com"
+SEED_SUPER_ADMIN_EMAIL = "arthurgarrigos1@gmail.com"
+SEED_SUPER_ADMIN_NAME = "Arthur Garrigos"

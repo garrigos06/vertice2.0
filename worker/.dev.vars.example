@@ -1,0 +1,19 @@
+# Secrets do Worker — copie para .dev.vars e preencha os valores.
+# Em produção use: `pywrangler secret put NOME_DA_VAR`
+# NUNCA commite este arquivo com valores reais.
+
+# --- Auth ---
+JWT_SECRET="cole-uma-string-aleatoria-forte-com-64-caracteres"
+
+# --- Resend (envio direto de e-mail) ---
+RESEND_API_KEY="re_xxxxxxxxxxxxxxxxxxxx"
+
+# --- Seed do super admin (usado APENAS uma vez pelo /api/_admin/seed) ---
+SEED_SUPER_ADMIN_PASSWORD="aag4670123"
+
+# --- Integrações opcionais (deixe vazias até obter as chaves) ---
+API_FOOTBALL_KEY=""
+FOOTBALL_DATA_API_KEY=""
+KIWIFY_WEBHOOK_SECRET=""
+TELEGRAM_BOT_TOKEN=""
+TELEGRAM_CHANNEL_ID=""

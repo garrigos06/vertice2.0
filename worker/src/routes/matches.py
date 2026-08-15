@@ -1,41 +1,35 @@
-"""Live matches + calendar via API-Football / football-data.org.
-
-If no provider is configured, endpoints return `configured: false` and empty
-data so the UI shows a proper "não configurado" fallback (never fake stats).
-"""
+"""Matches routes — API-Football + football-data.org via Workers `fetch`."""
 from __future__ import annotations
 
 import logging
-import os
-from datetime import date, datetime, timedelta
-from typing import Optional
+from datetime import date, timedelta
 
-import httpx
 from fastapi import APIRouter, Query
 
-logger = logging.getLogger(__name__)
-router = APIRouter(prefix="/matches", tags=["matches"])
+from deps import get_secret
+from http_client import fetch_json
 
-API_FOOTBALL_KEY = os.environ.get("API_FOOTBALL_KEY", "").strip()
-FOOTBALL_DATA_KEY = os.environ.get("FOOTBALL_DATA_API_KEY", "").strip()
+logger = logging.getLogger("vertice.matches")
+router = APIRouter(prefix="/matches", tags=["matches"])
 
 
 async def _api_football_fixtures(when: str) -> list[dict]:
-    if not API_FOOTBALL_KEY:
+    key = get_secret("API_FOOTBALL_KEY")
+    if not key:
         return []
-    params = {"date": when} if when != "live" else {"live": "all"}
-    async with httpx.AsyncClient(timeout=15) as c:
-        r = await c.get(
-            "https://v3.football.api-sports.io/fixtures",
-            headers={"x-apisports-key": API_FOOTBALL_KEY},
-            params=params,
-        )
-        r.raise_for_status()
-        data = r.json().get("response", [])
+    params = "live=all" if when == "live" else f"date={when}"
+    status, data = await fetch_json(
+        f"https://v3.football.api-sports.io/fixtures?{params}",
+        headers={"x-apisports-key": key},
+    )
+    if status >= 400 or not isinstance(data, dict):
+        return []
     out = []
-    for f in data:
-        fx = f.get("fixture", {}); tm = f.get("teams", {}); lg = f.get("league", {})
-        gl = f.get("goals", {})
+    for f in data.get("response") or []:
+        fx = f.get("fixture", {}) or {}
+        tm = f.get("teams", {}) or {}
+        lg = f.get("league", {}) or {}
+        gl = f.get("goals", {}) or {}
         out.append({
             "id": f"af_{fx.get('id')}",
             "kickoff": fx.get("date"),
@@ -56,18 +50,17 @@ async def _api_football_fixtures(when: str) -> list[dict]:
 
 
 async def _football_data_fixtures(when: str) -> list[dict]:
-    if not FOOTBALL_DATA_KEY or when == "live":
-        return []  # football-data doesn't have easy live endpoint on free tier
-    async with httpx.AsyncClient(timeout=15) as c:
-        r = await c.get(
-            "https://api.football-data.org/v4/matches",
-            headers={"X-Auth-Token": FOOTBALL_DATA_KEY},
-            params={"dateFrom": when, "dateTo": when},
-        )
-        r.raise_for_status()
-        data = r.json().get("matches", [])
+    key = get_secret("FOOTBALL_DATA_API_KEY")
+    if not key or when == "live":
+        return []
+    status, data = await fetch_json(
+        f"https://api.football-data.org/v4/matches?dateFrom={when}&dateTo={when}",
+        headers={"X-Auth-Token": key},
+    )
+    if status >= 400 or not isinstance(data, dict):
+        return []
     out = []
-    for m in data:
+    for m in data.get("matches") or []:
         out.append({
             "id": f"fd_{m.get('id')}",
             "kickoff": m.get("utcDate"),
@@ -80,7 +73,7 @@ async def _football_data_fixtures(when: str) -> list[dict]:
             "score_away": ((m.get("score") or {}).get("fullTime") or {}).get("away"),
             "competition": (m.get("competition") or {}).get("name"),
             "competition_logo": (m.get("competition") or {}).get("emblem"),
-            "country": ((m.get("area") or {}).get("name")),
+            "country": (m.get("area") or {}).get("name"),
             "source": "football-data",
         })
     return out
@@ -97,21 +90,18 @@ def _dedupe(items: list[dict]) -> list[dict]:
 
 @router.get("/health")
 async def providers_health():
-    """Status card for the Inteligência health panel."""
     return {
         "providers": [
-            {"name": "API-Football", "configured": bool(API_FOOTBALL_KEY)},
-            {"name": "football-data.org", "configured": bool(FOOTBALL_DATA_KEY)},
+            {"name": "API-Football", "configured": bool(get_secret("API_FOOTBALL_KEY"))},
+            {"name": "football-data.org", "configured": bool(get_secret("FOOTBALL_DATA_API_KEY"))},
             {"name": "TheSportsDB", "configured": False},
         ]
     }
 
 
 @router.get("")
-async def list_matches(
-    when: str = Query("today", pattern="^(today|tomorrow|yesterday|live)$"),
-):
-    if not API_FOOTBALL_KEY and not FOOTBALL_DATA_KEY:
+async def list_matches(when: str = Query("today", pattern="^(today|tomorrow|yesterday|live)$")):
+    if not get_secret("API_FOOTBALL_KEY") and not get_secret("FOOTBALL_DATA_API_KEY"):
         return {"configured": False, "items": [], "message": "Nenhum provedor esportivo configurado."}
 
     if when == "today":
@@ -125,16 +115,14 @@ async def list_matches(
 
     items: list[dict] = []
     errors: list[str] = []
-    for fn in (_api_football_fixtures, _football_data_fixtures):
+    for name, fn in (
+        ("api-football", _api_football_fixtures),
+        ("football-data", _football_data_fixtures),
+    ):
         try:
             items.extend(await fn(d))
-        except httpx.HTTPStatusError as e:
-            errors.append(f"{fn.__name__}: {e.response.status_code}")
         except Exception as e:
-            errors.append(f"{fn.__name__}: {str(e)[:120]}")
+            errors.append(f"{name}: {str(e)[:120]}")
+            logger.warning(f"provider {name} falhou: {e}")
 
-    return {
-        "configured": True,
-        "items": _dedupe(items),
-        "errors": errors,
-    }
+    return {"configured": True, "items": _dedupe(items), "errors": errors}

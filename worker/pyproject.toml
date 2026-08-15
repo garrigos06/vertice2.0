@@ -1,0 +1,14 @@
+[project]
+name = "vertice-sports-api"
+version = "1.0.0"
+description = "Vértice Sports API — Cloudflare Python Worker + D1"
+requires-python = ">=3.12"
+
+# Pyodide-compatible pure-Python packages. `pywrangler` empacota tudo aqui
+# no build para deploy no Worker runtime.
+dependencies = [
+    "fastapi",
+    "pydantic",
+    "pydantic[email]",
+    "pyjwt",
+]
