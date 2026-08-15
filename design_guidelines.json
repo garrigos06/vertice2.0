@@ -1,0 +1,145 @@
+{
+  "theme": "dark",
+  "colors": {
+    "background": {
+      "main": "#0A0A0A",
+      "surface": "#121212",
+      "surface_elevated": "#1A1A1A"
+    },
+    "primary": {
+      "main": "#CCFF00",
+      "hover": "#E6FF4D",
+      "glow": "rgba(204, 255, 0, 0.4)",
+      "muted": "rgba(204, 255, 0, 0.1)"
+    },
+    "secondary": {
+      "main": "#22C55E",
+      "dark": "#166534"
+    },
+    "text": {
+      "primary": "#FFFFFF",
+      "secondary": "#A1A1AA",
+      "muted": "#71717A",
+      "inverse": "#000000"
+    },
+    "border": {
+      "subtle": "rgba(255, 255, 255, 0.05)",
+      "strong": "rgba(255, 255, 255, 0.1)",
+      "primary": "rgba(204, 255, 0, 0.3)"
+    },
+    "status": {
+      "green": "#10B981",
+      "red": "#EF4444",
+      "void": "#F59E0B",
+      "pending": "#71717A"
+    }
+  },
+  "typography": {
+    "headings": {
+      "family": "'Clash Display', sans-serif",
+      "weights": ["500", "600", "700"],
+      "usage": "Use for all H1-H4, section titles, and marketing hooks. Never use Inter."
+    },
+    "body": {
+      "family": "'Manrope', sans-serif",
+      "weights": ["400", "500", "600"],
+      "usage": "Use for all paragraphs, descriptions, and UI text."
+    },
+    "mono": {
+      "family": "'JetBrains Mono', monospace",
+      "weights": ["400", "500", "700"],
+      "usage": "Use for odds (superodds), probabilities, and data metrics."
+    }
+  },
+  "layouts": {
+    "public_site": "Asymmetric grids. Hero section with dark overlay over stadium imagery. Staggered feature cards. Generous padding (p-12 to p-24).",
+    "dashboard": "Bento Grid system (MODE B: High Density). Use grid-cols-1 md:grid-cols-4. Strict hierarchy, data correlation. Sidebar fixed on desktop.",
+    "container": "Max-w-7xl for public pages, full-width with sidebar for admin."
+  },
+  "responsive": {
+    "breakpoint": "mobile-first",
+    "layout": "Stack elements on mobile (grid-cols-1). Ensure complex tables or bento grids overflow horizontally or stack cleanly. Desktop uses sidebar.",
+    "typography": "Fluid scaling. H1 starts at text-4xl on mobile, up to text-6xl on desktop. Keep body text at text-base for mobile readability.",
+    "overflow_guard": "Ensure all grid containers have min-w-0 and charts are responsive. Prevent x-axis scrolling.",
+    "tap_targets": "Min 44x44px for all mobile interactive elements (bottom nav icons, buttons)."
+  },
+  "components": {
+    "navigation": {
+      "mobile": "Fixed bottom navigation (Início, Bilhetes, Ao vivo, Calendário, Perfil). Glassmorphism background: bg-black/80 backdrop-blur-xl with a 1px border-t border-white/10. Z-index 50.",
+      "desktop": "Fixed left sidebar. Graphite background (bg-[#121212]). Active state uses neon green text and 2px left border."
+    },
+    "cards": {
+      "base": "Flat solid background (bg-[#1A1A1A]), 1px border (border-white/5), no heavy shadows.",
+      "premium": "Add a subtle tracing beam or neon border glow for FULL plan cards or premium tips.",
+      "bet_slip_card": "Header with match info, body with odds/tips (JetBrains Mono). Include status badge on top right."
+    },
+    "badges": {
+      "green": "bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 font-medium px-2 py-0.5 rounded-full text-xs",
+      "red": "bg-red-500/10 text-red-500 border border-red-500/20 font-medium px-2 py-0.5 rounded-full text-xs",
+      "void": "bg-amber-500/10 text-amber-500 border border-amber-500/20 font-medium px-2 py-0.5 rounded-full text-xs",
+      "pending": "bg-zinc-500/10 text-zinc-400 border border-zinc-500/20 font-medium px-2 py-0.5 rounded-full text-xs"
+    },
+    "buttons": {
+      "primary": "bg-[#CCFF00] text-black font-semibold uppercase tracking-wider rounded-md hover:bg-[#E6FF4D] transition-colors focus:ring-2 focus:ring-[#CCFF00] focus:ring-offset-2 focus:ring-offset-[#0A0A0A]",
+      "secondary": "bg-white/5 text-white border border-white/10 hover:bg-white/10 rounded-md transition-colors"
+    }
+  },
+  "visual_enhancers": {
+    "glows": "Subtle green glows (box-shadow or radial-gradient backgrounds with opacity) behind key metrics or premium CTA buttons. Limit to max 1-2 per screen.",
+    "borders": "Optical clarity. Always ground dark UI elements with 1px border-white/5.",
+    "textures": "Use subtle noise/grain texture on the dark background to kill digital flatness, enhancing the premium feel."
+  },
+  "motion": {
+    "transitions": "Use specific properties. transition: transform 0.2s ease, opacity 0.2s ease, background-color 0.2s ease.",
+    "loading": "Skeleton loading (shimmer effect using dark gray gradients bg-white/5 to bg-white/10) for all data-fetching components.",
+    "interactions": "Hover states on all cards (subtle -translate-y-1). Toast notifications for actions (use Sonner)."
+  },
+  "accessibility": {
+    "contrast": "Ensure white text on #1A1A1A meets minimum 4.5:1. Black text on #CCFF00 ensures optimal readability.",
+    "focus": "Explicit focus states for all interactive elements.",
+    "testing": "All interactive and key informational elements MUST include a data-testid attribute in kebab-case."
+  },
+  "media": {
+    "image_urls": {
+      "logo_horizontal": {
+        "url": "https://customer-assets.emergentagent.com/job_vertice-sports/artifacts/vertice-logo-horizontal.png",
+        "description": "VÉRTICE SPORTS horizontal logo in lime green and black"
+      },
+      "logo_icon": {
+        "url": "https://customer-assets.emergentagent.com/job_vertice-sports/artifacts/vertice-logo-icon.png",
+        "description": "VÉRTICE SPORTS vertex symbol icon"
+      },
+      "hero_background": {
+        "url": "https://images.unsplash.com/photo-1522778119026-d647f0596c20?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2Njd8MHwxfHNlYXJjaHwxfHxzb2NjZXIlMjBzdGFkaXVtJTIwbmlnaHR8ZW58MHx8fHwxNzg2NzY0OTI5fDA&ixlib=rb-4.1.0&q=85",
+        "description": "Soccer field at night, to be used with a heavy dark overlay (bg-black/60) for the public landing page hero."
+      },
+      "analytics_abstract": {
+        "url": "https://images.unsplash.com/photo-1551288049-bebda4e38f71?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NTYxOTB8MHwxfHNlYXJjaHwyfHxzcG9ydHMlMjBhbmFseXRpY3N8ZW58MHx8fHwxNzg2NzY0OTI5fDA&ixlib=rb-4.1.0&q=85",
+        "description": "Dark analytics charts, useful for feature sections or intelligence dashboard."
+      }
+    }
+  },
+  "instructions_to_main_agent": {
+    "critical_rules": [
+      "NO purple or violet gradients. Do not use centered layouts. Use left-aligned, asymmetric grids.",
+      "Use dark backgrounds (#0A0A0A) with very subtle neon green (#CCFF00) accents. Avoid making the UI too colorful.",
+      "Always use pure HTML + Tailwind CSS for layouts. Use shadcn/ui for complex interactive logic.",
+      "Use .js files (not .tsx) for the components and pages.",
+      "Implement a Mobile-first bottom nav for small screens, and a fixed left sidebar for desktop.",
+      "All interactive elements must include a data-testid attribute (e.g. data-testid=\"login-submit-btn\").",
+      "Do NOT use completely transparent backgrounds for headers or overlays. Use bg-black/80 backdrop-blur-xl.",
+      "Fonts: Clash Display (Headings), Manrope (Body), JetBrains Mono (Data/Odds). DO NOT use Inter.",
+      "For bet slips (bilhetes), explicitly use the status colors defined (Green, Red, Void, Pending) as distinct badges.",
+      "Use Lucide-React for icons, or Phosphor Icons if a more technical look is desired."
+    ],
+    "UNIVERSAL_GUIDELINES_FOR_MAIN_AGENT": [
+      "Create depth through layered design elements with z-index hierarchy and subtle borders.",
+      "Every interaction needs micro-animations - hover states, specific transitions.",
+      "Use 2-3x more spacing than feels comfortable. Cramped designs look cheap.",
+      "Never use placeholder URLs. Use the provided image URLs.",
+      "Prioritize using pre-existing components from src/components/ui when applicable.",
+      "Use sonner for toasts.",
+      "NEVER use AI assistant emojis."
+    ]
+  }
+}

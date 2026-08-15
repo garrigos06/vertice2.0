@@ -1,0 +1,37 @@
+{
+  "summary": "First-finish smoke pass for Vértice Sports Phase 1. Backend (health, auth, admin stats, bets CRUD + gating, history, users, matches unconfigured, kiwify unconfigured) all working. Frontend home/login/admin flows working; super admin login redirects to /admin, sidebar renders, KPI populated, bilhetes/usuarios pages load, anti-enum forgot-password works. Kiwify webhook + matches providers correctly return unconfigured state (expected per Phase 1 scope).",
+  "tested_scope": ["backend", "frontend", "auth", "integration"],
+  "passed": [
+    "GET /api/health -> 200 {ok:true}",
+    "POST /api/auth/register creates FREE/USER and returns JWT (field name: 'token')",
+    "POST /api/auth/login super admin returns role=SUPER_ADMIN plan=FULL with token",
+    "GET /api/auth/me with Bearer works; without token returns 401",
+    "POST /api/auth/forgot-password returns generic anti-enum message for both existing and non-existing emails (200)",
+    "POST /api/auth/reset-password with invalid token -> 400 (uses 'new_password' body field)",
+    "GET /api/admin/stats as SUPER_ADMIN returns KPIs (users_total, greens, hit_rate, etc.); 401 without token; 403 as USER",
+    "POST /api/bets/admin creates bet (category enum: SIMPLES/COMBINADO/MULTIPLO/SUPERODD; body uses 'total_odd' and 'required_plan')",
+    "PATCH /api/bets/admin/{id} updates status to GREEN; DELETE removes bet",
+    "GET /api/bets/admin/all lists bets",
+    "GET /api/bets?featured=true&published=true: PRO bet returned with locked=true for anon/FREE user; rationale and external_url stripped when locked",
+    "GET /api/bets/history returns {items,stats:{total,green,red,void,hit_rate}}",
+    "GET /api/admin/users lists users",
+    "GET /api/matches?when=today returns {configured:false, items:[]} (no keys)",
+    "GET /api/matches/health returns 3 providers all configured=false",
+    "POST /api/kiwify/webhook -> 503 'não configurado' (no secret)",
+    "Home / renders hero with title 'Análises que encontram valorantes...'",
+    "Login form works; SUPER_ADMIN login redirects to /admin; header shows 'Super Admin'",
+    "admin-sidebar visible; kpi-users-total renders count from /api/admin/stats",
+    "/admin/bilhetes shows admin-new-bet button",
+    "/admin/usuarios shows users-search-input and lists super admin + test user with plan/role selects",
+    "/recuperar-senha submits and shows forgot-sent card with anti-enum message"
+  ],
+  "failed": [],
+  "action_items": [
+    "MINOR (docs only): review_request lists data-testids that differ from actual code. Actual: login-email/login-password/login-submit, register-name/register-email/register-password/register-submit, forgot-email/forgot-submit/forgot-sent. Update PRD/testids doc so downstream QA scripts don't fail. No code fix needed.",
+    "MINOR (docs only): Login/register endpoints return the JWT in field 'token' (not 'access_token'). Reset-password expects 'new_password' (not 'password'). Document this in API contract."
+  ],
+  "success_rate": {"backend": "100%", "frontend": "100%"},
+  "retest_needed": false,
+  "full_testing_deferred": true,
+  "notes": "Phase 1 scope only. Kiwify webhook, API-Football, TheSportsDB, football-data.org, and Telegram intentionally unconfigured — endpoints return proper 'not configured' responses. Not bugs."
+}
