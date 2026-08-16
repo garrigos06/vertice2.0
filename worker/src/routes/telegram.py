@@ -1,5 +1,6 @@
-"""Telegram integration — Vértice Sports FULL."""
 from __future__ import annotations
+
+from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, Field
@@ -11,14 +12,14 @@ router = APIRouter(prefix="/telegram", tags=["telegram"])
 
 
 class TelegramMessage(BaseModel):
-    text: str = Field(min_length=1, max_length=4096)
+    text: str = Field(default="", max_length=4096)
+    image_url: Optional[str] = Field(default=None, max_length=2000)
     disable_notification: bool = False
 
 
 def _config():
     token = get_secret("TELEGRAM_BOT_TOKEN")
     channel_id = get_secret("TELEGRAM_CHANNEL_ID")
-
     return token, channel_id
 
 
@@ -26,10 +27,10 @@ async def _telegram_request(method: str, payload: dict | None = None):
     token, _ = _config()
 
     if not token:
-        raise HTTPException(
-            status_code=503,
-            detail="TELEGRAM_BOT_TOKEN não configurado",
-        )
+      raise HTTPException(
+          status_code=503,
+          detail="TELEGRAM_BOT_TOKEN não configurado",
+      )
 
     status, data = await fetch_json(
         f"https://api.telegram.org/bot{token}/{method}",
@@ -37,11 +38,7 @@ async def _telegram_request(method: str, payload: dict | None = None):
         json_body=payload or {},
     )
 
-    if (
-        status >= 400
-        or not isinstance(data, dict)
-        or not data.get("ok")
-    ):
+    if status >= 400 or not isinstance(data, dict) or not data.get("ok"):
         detail = (
             data.get("description")
             if isinstance(data, dict)
@@ -136,20 +133,54 @@ async def telegram_send(
             detail="Integração Telegram não configurada",
         )
 
+    text = (payload.text or "").strip()
+    image_url = (payload.image_url or "").strip()
+
+    if not text and not image_url:
+        raise HTTPException(
+            status_code=400,
+            detail="Informe uma mensagem ou uma imagem",
+        )
+
+    # Se tiver imagem, envia como foto com legenda opcional.
+    if image_url:
+        if text and len(text) > 1024:
+            raise HTTPException(
+                status_code=400,
+                detail="Legenda com imagem suporta até 1024 caracteres no Telegram",
+            )
+
+        result = await _telegram_request(
+            "sendPhoto",
+            {
+                "chat_id": channel_id,
+                "photo": image_url,
+                "caption": text if text else None,
+                "disable_notification": payload.disable_notification,
+            },
+        )
+
+        return {
+            "ok": True,
+            "type": "photo",
+            "message_id": result.get("message_id"),
+            "date": result.get("date"),
+            "chat_id": (result.get("chat") or {}).get("id"),
+        }
+
     result = await _telegram_request(
         "sendMessage",
         {
             "chat_id": channel_id,
-            "text": payload.text,
+            "text": text,
             "disable_notification": payload.disable_notification,
         },
     )
 
     return {
         "ok": True,
+        "type": "message",
         "message_id": result.get("message_id"),
         "date": result.get("date"),
-        "chat_id": (
-            result.get("chat") or {}
-        ).get("id"),
+        "chat_id": (result.get("chat") or {}).get("id"),
     }
