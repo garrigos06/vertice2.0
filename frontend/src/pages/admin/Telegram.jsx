@@ -6,6 +6,7 @@ import {
   Bot,
   CheckCircle2,
   CircleAlert,
+  Image as ImageIcon,
   Loader2,
   MessageCircle,
   RefreshCw,
@@ -33,6 +34,7 @@ export default function AdminTelegram() {
   const [refreshing, setRefreshing] = useState(false);
 
   const [message, setMessage] = useState("");
+  const [imageUrl, setImageUrl] = useState("");
   const [silent, setSilent] = useState(false);
   const [sending, setSending] = useState(false);
 
@@ -82,13 +84,19 @@ export default function AdminTelegram() {
     e.preventDefault();
 
     const text = message.trim();
+    const photo = imageUrl.trim();
 
-    if (!text) {
-      toast.error("Escreva uma mensagem");
+    if (!text && !photo) {
+      toast.error("Escreva uma mensagem ou informe a URL da imagem");
       return;
     }
 
-    if (text.length > 4096) {
+    if (photo && text.length > 1024) {
+      toast.error("Com imagem, a legenda suporta até 1024 caracteres");
+      return;
+    }
+
+    if (!photo && text.length > 4096) {
       toast.error("A mensagem passou de 4096 caracteres");
       return;
     }
@@ -98,21 +106,23 @@ export default function AdminTelegram() {
     try {
       const { data } = await api.post("/telegram/send", {
         text,
+        image_url: photo || null,
         disable_notification: silent,
       });
 
       toast.success(
-        `Mensagem enviada para o FULL${
-          data?.message_id ? ` • #${data.message_id}` : ""
-        }`
+        data?.type === "photo"
+          ? `Imagem enviada para o FULL${data?.message_id ? ` • #${data.message_id}` : ""}`
+          : `Mensagem enviada para o FULL${data?.message_id ? ` • #${data.message_id}` : ""}`
       );
 
       setMessage("");
+      setImageUrl("");
       setSilent(false);
     } catch (err) {
       toast.error(
         err?.response?.data?.detail ||
-          "Erro ao enviar mensagem para o Telegram"
+          "Erro ao enviar para o Telegram"
       );
     } finally {
       setSending(false);
@@ -131,9 +141,11 @@ export default function AdminTelegram() {
     (membership?.status === "administrator" &&
       membership?.can_post_messages !== false);
 
+  const previewHasImage = imageUrl.trim().length > 0;
+  const currentLimit = previewHasImage ? 1024 : 4096;
+
   return (
     <AdminLayout>
-      {/* Cabeçalho */}
       <div className="mb-8 flex flex-col lg:flex-row lg:items-end lg:justify-between gap-5">
         <div>
           <div className="text-[11px] uppercase tracking-[0.3em] text-[#CCFF00] mb-2">
@@ -174,7 +186,6 @@ export default function AdminTelegram() {
         </div>
       ) : (
         <>
-          {/* Status geral */}
           <div
             className={`mb-6 rounded-xl border p-5 sm:p-6 flex flex-col sm:flex-row sm:items-center gap-4 ${
               connected
@@ -230,7 +241,6 @@ export default function AdminTelegram() {
             </div>
           </div>
 
-          {/* Cards */}
           <div className="grid sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-7">
             <div className="vs-card p-5">
               <div className="flex items-center justify-between mb-5">
@@ -337,9 +347,7 @@ export default function AdminTelegram() {
             </div>
           </div>
 
-          {/* Editor + preview */}
           <div className="grid xl:grid-cols-[1.35fr_0.65fr] gap-6">
-            {/* Composer */}
             <form
               onSubmit={sendMessage}
               className="vs-card p-5 sm:p-7"
@@ -355,8 +363,7 @@ export default function AdminTelegram() {
                   </h2>
 
                   <p className="text-sm text-white/40 mt-1">
-                    A mensagem será publicada diretamente no
-                    canal configurado.
+                    Agora com mensagem e imagem no mesmo post.
                   </p>
                 </div>
 
@@ -366,30 +373,49 @@ export default function AdminTelegram() {
               </div>
 
               <label className="block text-xs uppercase tracking-wider text-white/50 mb-2">
-                Mensagem
+                URL da imagem (opcional)
+              </label>
+
+              <div className="relative mb-5">
+                <input
+                  type="url"
+                  value={imageUrl}
+                  onChange={(e) => setImageUrl(e.target.value)}
+                  disabled={!connected || sending}
+                  placeholder="https://..."
+                  className="w-full bg-black/40 border border-white/10 rounded-lg p-4 pr-12 outline-none focus:border-[#CCFF00]/50 focus:ring-1 focus:ring-[#CCFF00]/10 transition-all placeholder:text-white/20 disabled:opacity-50"
+                />
+
+                <div className="absolute right-4 top-1/2 -translate-y-1/2 text-white/25">
+                  <ImageIcon size={18} />
+                </div>
+              </div>
+
+              <label className="block text-xs uppercase tracking-wider text-white/50 mb-2">
+                Mensagem / legenda
               </label>
 
               <div className="relative">
                 <textarea
                   value={message}
                   onChange={(e) =>
-                    setMessage(e.target.value.slice(0, 4096))
+                    setMessage(e.target.value.slice(0, currentLimit))
                   }
                   disabled={!connected || sending}
                   placeholder={`🔥 VÉRTICE SPORTS | FULL
 
 Escreva aqui a mensagem exclusiva para os assinantes...`}
-                  className="w-full min-h-[280px] resize-y bg-black/40 border border-white/10 rounded-lg p-4 pb-10 outline-none focus:border-[#CCFF00]/50 focus:ring-1 focus:ring-[#CCFF00]/10 transition-all placeholder:text-white/20 disabled:opacity-50"
+                  className="w-full min-h-[260px] resize-y bg-black/40 border border-white/10 rounded-lg p-4 pb-10 outline-none focus:border-[#CCFF00]/50 focus:ring-1 focus:ring-[#CCFF00]/10 transition-all placeholder:text-white/20 disabled:opacity-50"
                 />
 
                 <span
                   className={`absolute bottom-3 right-3 text-[11px] font-mono ${
-                    message.length > 3800
+                    message.length > currentLimit - 100
                       ? "text-amber-400"
                       : "text-white/30"
                   }`}
                 >
-                  {message.length}/4096
+                  {message.length}/{currentLimit}
                 </span>
               </div>
 
@@ -428,7 +454,7 @@ Escreva aqui a mensagem exclusiva para os assinantes...`}
                   disabled={
                     sending ||
                     !connected ||
-                    !message.trim()
+                    (!message.trim() && !imageUrl.trim())
                   }
                   className="bg-[#CCFF00] hover:bg-[#e6ff4d] disabled:bg-white/10 disabled:text-white/30 disabled:cursor-not-allowed text-black font-semibold h-11 px-6 rounded-md flex items-center gap-2 transition-colors"
                 >
@@ -450,7 +476,6 @@ Escreva aqui a mensagem exclusiva para os assinantes...`}
               </div>
             </form>
 
-            {/* Preview */}
             <div className="vs-card p-5 sm:p-7 h-fit">
               <div className="text-[10px] uppercase tracking-[0.25em] text-[#CCFF00] mb-2">
                 Pré-visualização
@@ -480,12 +505,25 @@ Escreva aqui a mensagem exclusiva para os assinantes...`}
                   </div>
                 </div>
 
-                <div className="p-4 min-h-[220px]">
+                <div className="p-4 min-h-[220px] space-y-4">
+                  {previewHasImage && (
+                    <div className="rounded-lg overflow-hidden border border-white/10 bg-black/20">
+                      <img
+                        src={imageUrl}
+                        alt="Prévia"
+                        className="w-full h-auto object-cover"
+                        onError={(e) => {
+                          e.currentTarget.style.display = "none";
+                        }}
+                      />
+                    </div>
+                  )}
+
                   {message.trim() ? (
                     <p className="text-sm whitespace-pre-wrap break-words leading-relaxed text-white/90">
                       {message}
                     </p>
-                  ) : (
+                  ) : !previewHasImage ? (
                     <div className="h-full min-h-[180px] grid place-items-center text-center">
                       <div>
                         <Smartphone
@@ -498,7 +536,7 @@ Escreva aqui a mensagem exclusiva para os assinantes...`}
                         </p>
                       </div>
                     </div>
-                  )}
+                  ) : null}
                 </div>
 
                 <div className="px-4 pb-3 text-right">
