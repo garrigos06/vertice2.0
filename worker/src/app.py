@@ -8,6 +8,7 @@ from routes.bets import router as bets_router
 from routes.admin import router as admin_router
 from routes.matches import router as matches_router
 from routes.webhooks import router as kiwify_router
+from routes.telegram import router as telegram_router
 
 
 app = FastAPI(title="Vértice Sports API", docs_url=None, redoc_url=None)
@@ -41,6 +42,7 @@ api.include_router(bets_router)
 api.include_router(admin_router)
 api.include_router(matches_router)
 api.include_router(kiwify_router)
+api.include_router(telegram_router)
 
 app.include_router(api)
 
