@@ -108,6 +108,10 @@ class BetSlipCreate(BaseModel):
     image_url: Optional[str] = None
     published: bool = False
 
+    # Somente bilhetes FREE podem usar esta opção.
+    # A regra também será validada no backend e no banco.
+    is_public_preview: bool = False
+
 
 class BetSlipUpdate(BaseModel):
     title: Optional[str] = None
@@ -127,3 +131,6 @@ class BetSlipUpdate(BaseModel):
     image_url: Optional[str] = None
     status: Optional[BetStatus] = None
     published: Optional[bool] = None
+
+    # Permite ao admin ativar/desativar a amostra pública.
+    is_public_preview: Optional[bool] = None
