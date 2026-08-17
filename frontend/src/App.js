@@ -12,6 +12,7 @@ import { AuthProvider } from "./context/AuthContext";
 
 import Home from "./pages/Home";
 import DashboardUsuario from "./pages/DashboardUsuario";
+import Performance from "./pages/Performance";
 import Bilhetes from "./pages/Bilhetes";
 import Historico from "./pages/Historico";
 import AoVivo from "./pages/AoVivo";
@@ -42,85 +43,24 @@ function App() {
           />
 
           <Routes>
-            <Route
-              path="/"
-              element={<Home />}
-            />
+            <Route path="/" element={<Home />} />
+            <Route path="/dashboard" element={<DashboardUsuario />} />
+            <Route path="/performance" element={<Performance />} />
+            <Route path="/bilhetes" element={<Bilhetes />} />
+            <Route path="/historico" element={<Historico />} />
+            <Route path="/ao-vivo" element={<AoVivo />} />
+            <Route path="/calendario" element={<Calendario />} />
+            <Route path="/partida/:matchId" element={<Partida />} />
+            <Route path="/planos" element={<Planos />} />
+            <Route path="/conta" element={<Conta />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/cadastro" element={<Cadastro />} />
+            <Route path="/recuperar-senha" element={<RecuperarSenha />} />
+            <Route path="/redefinir-senha" element={<RedefinirSenha />} />
 
-            <Route
-              path="/dashboard"
-              element={<DashboardUsuario />}
-            />
-
-            <Route
-              path="/bilhetes"
-              element={<Bilhetes />}
-            />
-
-            <Route
-              path="/historico"
-              element={<Historico />}
-            />
-
-            <Route
-              path="/ao-vivo"
-              element={<AoVivo />}
-            />
-
-            <Route
-              path="/calendario"
-              element={<Calendario />}
-            />
-
-            <Route
-              path="/partida/:matchId"
-              element={<Partida />}
-            />
-
-            <Route
-              path="/planos"
-              element={<Planos />}
-            />
-
-            <Route
-              path="/conta"
-              element={<Conta />}
-            />
-
-            <Route
-              path="/login"
-              element={<Login />}
-            />
-
-            <Route
-              path="/cadastro"
-              element={<Cadastro />}
-            />
-
-            <Route
-              path="/recuperar-senha"
-              element={<RecuperarSenha />}
-            />
-
-            <Route
-              path="/redefinir-senha"
-              element={<RedefinirSenha />}
-            />
-
-            <Route
-              path="/admin"
-              element={<AdminDashboard />}
-            />
-
-            <Route
-              path="/admin/bilhetes"
-              element={<AdminBilhetes />}
-            />
-
-            <Route
-              path="/admin/usuarios"
-              element={<AdminUsuarios />}
-            />
+            <Route path="/admin" element={<AdminDashboard />} />
+            <Route path="/admin/bilhetes" element={<AdminBilhetes />} />
+            <Route path="/admin/usuarios" element={<AdminUsuarios />} />
 
             <Route
               path="/admin/inteligencia"
@@ -137,7 +77,7 @@ function App() {
               element={
                 <AdminPlaceholder
                   title="Planos"
-                  description="ConfiguraÃ§Ã£o dos planos, integraÃ§Ã£o Kiwify e histÃ³rico de assinaturas. Configure KIWIFY_WEBHOOK_SECRET no .env para ativar."
+                  description="ConfiguraÃ§Ã£o dos planos, integraÃ§Ã£o Kiwify e histÃ³rico de assinaturas."
                 />
               }
             />
