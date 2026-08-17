@@ -187,3 +187,4 @@ export default function Login() {
       </section>
     </PublicLayout>
   );
+}
