@@ -91,12 +91,12 @@ function LockedFreeContent({ bet }) {
           </div>
 
           <h4 className="max-w-sm font-display text-xl leading-tight text-white sm:text-[22px]">
-            Desbloqueie os bilhetes gratuitos de hoje
+            Veja as seleções e a análise completa
           </h4>
 
           <p className="mt-2 max-w-md text-sm leading-relaxed text-white/55">
-            Crie sua conta Free para acessar mercados, análises e histórico
-            completo.
+            Cadastre-se grátis para desbloquear este bilhete e acompanhar o
+            histórico.
           </p>
 
           {/* Benefícios discretos */}
