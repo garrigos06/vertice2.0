@@ -1,6 +1,13 @@
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import {
+  BrowserRouter,
+  Route,
+  Routes,
+} from "react-router-dom";
+
 import { Toaster } from "sonner";
+
 import "./App.css";
+
 import { AuthProvider } from "./context/AuthContext";
 
 import Home from "./pages/Home";
@@ -8,6 +15,7 @@ import Bilhetes from "./pages/Bilhetes";
 import Historico from "./pages/Historico";
 import AoVivo from "./pages/AoVivo";
 import Calendario from "./pages/Calendario";
+import Partida from "./pages/Partida";
 import Planos from "./pages/Planos";
 import Login from "./pages/Login";
 import Cadastro from "./pages/Cadastro";
@@ -26,33 +34,83 @@ function App() {
     <div className="App">
       <BrowserRouter>
         <AuthProvider>
-          <Toaster position="top-right" theme="dark" richColors />
+          <Toaster
+            position="top-right"
+            theme="dark"
+            richColors
+          />
 
           <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/bilhetes" element={<Bilhetes />} />
-            <Route path="/historico" element={<Historico />} />
-            <Route path="/ao-vivo" element={<AoVivo />} />
-            <Route path="/calendario" element={<Calendario />} />
-            <Route path="/planos" element={<Planos />} />
-            <Route path="/conta" element={<Conta />} />
+            <Route
+              path="/"
+              element={<Home />}
+            />
 
-            <Route path="/login" element={<Login />} />
-            <Route path="/cadastro" element={<Cadastro />} />
+            <Route
+              path="/bilhetes"
+              element={<Bilhetes />}
+            />
+
+            <Route
+              path="/historico"
+              element={<Historico />}
+            />
+
+            <Route
+              path="/ao-vivo"
+              element={<AoVivo />}
+            />
+
+            <Route
+              path="/calendario"
+              element={<Calendario />}
+            />
+
+            <Route
+              path="/partida/:matchId"
+              element={<Partida />}
+            />
+
+            <Route
+              path="/planos"
+              element={<Planos />}
+            />
+
+            <Route
+              path="/conta"
+              element={<Conta />}
+            />
+
+            <Route
+              path="/login"
+              element={<Login />}
+            />
+
+            <Route
+              path="/cadastro"
+              element={<Cadastro />}
+            />
+
             <Route
               path="/recuperar-senha"
               element={<RecuperarSenha />}
             />
+
             <Route
               path="/redefinir-senha"
               element={<RedefinirSenha />}
             />
 
-            <Route path="/admin" element={<AdminDashboard />} />
+            <Route
+              path="/admin"
+              element={<AdminDashboard />}
+            />
+
             <Route
               path="/admin/bilhetes"
               element={<AdminBilhetes />}
             />
+
             <Route
               path="/admin/usuarios"
               element={<AdminUsuarios />}
