@@ -11,6 +11,7 @@ import "./App.css";
 import { AuthProvider } from "./context/AuthContext";
 
 import Home from "./pages/Home";
+import DashboardUsuario from "./pages/DashboardUsuario";
 import Bilhetes from "./pages/Bilhetes";
 import Historico from "./pages/Historico";
 import AoVivo from "./pages/AoVivo";
@@ -44,6 +45,11 @@ function App() {
             <Route
               path="/"
               element={<Home />}
+            />
+
+            <Route
+              path="/dashboard"
+              element={<DashboardUsuario />}
             />
 
             <Route
@@ -120,8 +126,8 @@ function App() {
               path="/admin/inteligencia"
               element={
                 <AdminPlaceholder
-                  title="Inteligência Vértice"
-                  description="Scanner, Comparador, Todas as partidas e Salvos. Disponível na Fase 6 — assim que as APIs esportivas estiverem configuradas."
+                  title="InteligÃªncia VÃ©rtice"
+                  description="Scanner, Comparador, Todas as partidas e Salvos. DisponÃ­vel na Fase 6 â assim que as APIs esportivas estiverem configuradas."
                 />
               }
             />
@@ -131,7 +137,7 @@ function App() {
               element={
                 <AdminPlaceholder
                   title="Planos"
-                  description="Configuração dos planos, integração Kiwify e histórico de assinaturas. Configure KIWIFY_WEBHOOK_SECRET no .env para ativar."
+                  description="ConfiguraÃ§Ã£o dos planos, integraÃ§Ã£o Kiwify e histÃ³rico de assinaturas. Configure KIWIFY_WEBHOOK_SECRET no .env para ativar."
                 />
               }
             />
@@ -145,8 +151,8 @@ function App() {
               path="/admin/configuracoes"
               element={
                 <AdminPlaceholder
-                  title="Configurações"
-                  description="Preferências gerais da plataforma e logs de auditoria."
+                  title="ConfiguraÃ§Ãµes"
+                  description="PreferÃªncias gerais da plataforma e logs de auditoria."
                 />
               }
             />
