@@ -3,13 +3,17 @@
 from fastapi import (
     FastAPI,
     APIRouter,
+    Depends,
 )
 
 from fastapi.middleware.cors import (
     CORSMiddleware,
 )
 
-from deps import get_current_env
+from deps import (
+    get_current_env,
+    require_pro_or_full,
+)
 
 from routes.auth import (
     router as auth_router,
@@ -109,14 +113,20 @@ api.include_router(
     matches_router
 )
 
-# Estatísticas da partida
+# Estatísticas públicas da partida
 api.include_router(
     match_stats_router
 )
 
-# Forma dos últimos X jogos
+# Forma recente + Inteligência Vértice
+# Acesso restrito a PRO/FULL ativos.
 api.include_router(
-    team_form_router
+    team_form_router,
+    dependencies=[
+        Depends(
+            require_pro_or_full
+        )
+    ],
 )
 
 api.include_router(

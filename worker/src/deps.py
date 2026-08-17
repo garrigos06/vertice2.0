@@ -89,3 +89,31 @@ async def require_super_admin(user=Depends(get_current_user)):
     if user["role"] != "SUPER_ADMIN":
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Somente Super Admin")
     return user
+
+
+async def require_pro_or_full(user=Depends(get_current_user)):
+    """
+    Libera recursos premium somente para assinantes PRO/FULL ativos.
+
+    ADMIN e SUPER_ADMIN mantêm acesso independentemente do plano para
+    permitir suporte, testes e administração da plataforma.
+    """
+    if user.get("role") in ("ADMIN", "SUPER_ADMIN"):
+        return user
+
+    plan = user.get("plan")
+    subscription_status = user.get("subscription_status")
+
+    if (
+        plan not in ("PRO", "FULL")
+        or subscription_status != "ACTIVE"
+    ):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=(
+                "Recurso disponível exclusivamente "
+                "nos planos PRO e FULL."
+            ),
+        )
+
+    return user
