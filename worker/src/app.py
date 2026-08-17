@@ -39,6 +39,10 @@ from routes.team_form import (
     router as team_form_router,
 )
 
+from routes.performance import (
+    router as performance_router,
+)
+
 from routes.webhooks import (
     router as kiwify_router,
 )
@@ -86,14 +90,8 @@ api = APIRouter(
 async def health():
     return {
         "ok": True,
-
-        "service": (
-            "vertice-sports"
-        ),
-
-        "runtime": (
-            "cloudflare-python-worker"
-        ),
+        "service": "vertice-sports",
+        "runtime": "cloudflare-python-worker",
     }
 
 
@@ -111,6 +109,11 @@ api.include_router(
 
 api.include_router(
     matches_router
+)
+
+# Central pública de performance
+api.include_router(
+    performance_router
 )
 
 # Estatísticas públicas da partida
@@ -144,11 +147,6 @@ app.include_router(api)
 @app.get("/")
 async def root():
     return {
-        "service": (
-            "vertice-sports"
-        ),
-
-        "docs": (
-            "/api/health"
-        ),
+        "service": "vertice-sports",
+        "docs": "/api/health",
     }
