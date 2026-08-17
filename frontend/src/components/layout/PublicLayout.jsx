@@ -4,6 +4,7 @@ import {
 } from "react-router-dom";
 
 import {
+  BarChart3,
   Calendar,
   Home,
   LayoutDashboard,
@@ -12,113 +13,46 @@ import {
   User,
 } from "lucide-react";
 
-import {
-  LOGO_HORIZONTAL,
-} from "../../lib/api";
-
-import {
-  useAuth,
-} from "../../context/AuthContext";
+import { LOGO_HORIZONTAL } from "../../lib/api";
+import { useAuth } from "../../context/AuthContext";
 
 
 const STANDARD_NAV_ITEMS = [
-  {
-    to: "/",
-    label: "Início",
-    icon: Home,
-    testid: "nav-home",
-  },
-  {
-    to: "/bilhetes",
-    label: "Bilhetes",
-    icon: Ticket,
-    testid: "nav-bilhetes",
-  },
-  {
-    to: "/ao-vivo",
-    label: "Ao vivo",
-    icon: Radio,
-    testid: "nav-aovivo",
-  },
-  {
-    to: "/calendario",
-    label: "Calendário",
-    icon: Calendar,
-    testid: "nav-calendario",
-  },
-  {
-    to: "/conta",
-    label: "Perfil",
-    icon: User,
-    testid: "nav-perfil",
-  },
+  { to: "/", label: "Início", icon: Home, testid: "nav-home" },
+  { to: "/bilhetes", label: "Bilhetes", icon: Ticket, testid: "nav-bilhetes" },
+  { to: "/ao-vivo", label: "Ao vivo", icon: Radio, testid: "nav-aovivo" },
+  { to: "/calendario", label: "Calendário", icon: Calendar, testid: "nav-calendario" },
+  { to: "/conta", label: "Perfil", icon: User, testid: "nav-perfil" },
 ];
 
 
 const PREMIUM_NAV_ITEMS = [
-  {
-    to: "/dashboard",
-    label: "Painel",
-    icon: LayoutDashboard,
-    testid: "nav-dashboard",
-  },
-  {
-    to: "/bilhetes",
-    label: "Bilhetes",
-    icon: Ticket,
-    testid: "nav-bilhetes",
-  },
-  {
-    to: "/ao-vivo",
-    label: "Ao vivo",
-    icon: Radio,
-    testid: "nav-aovivo",
-  },
-  {
-    to: "/calendario",
-    label: "Calendário",
-    icon: Calendar,
-    testid: "nav-calendario",
-  },
-  {
-    to: "/conta",
-    label: "Perfil",
-    icon: User,
-    testid: "nav-perfil",
-  },
+  { to: "/dashboard", label: "Painel", icon: LayoutDashboard, testid: "nav-dashboard" },
+  { to: "/bilhetes", label: "Bilhetes", icon: Ticket, testid: "nav-bilhetes" },
+  { to: "/ao-vivo", label: "Ao vivo", icon: Radio, testid: "nav-aovivo" },
+  { to: "/calendario", label: "Calendário", icon: Calendar, testid: "nav-calendario" },
+  { to: "/conta", label: "Perfil", icon: User, testid: "nav-perfil" },
 ];
 
 
-export default function PublicLayout({
-  children,
-}) {
-  const {
-    user,
-  } = useAuth();
-
-  const location =
-    useLocation();
-
+export default function PublicLayout({ children }) {
+  const { user } = useAuth();
+  const location = useLocation();
 
   const isStaff =
     user?.role === "ADMIN" ||
     user?.role === "SUPER_ADMIN";
 
-  const hasPremiumAccess =
-    Boolean(
-      user &&
+  const hasPremiumAccess = Boolean(
+    user &&
+      (
+        isStaff ||
         (
-          isStaff ||
-          (
-            ["PRO", "FULL"].includes(
-              user.plan
-            ) &&
-            user.subscription_status ===
-              "ACTIVE"
-          )
+          ["PRO", "FULL"].includes(user.plan) &&
+          user.subscription_status === "ACTIVE"
         )
-    );
-
+      )
+  );
 
   const navItems =
     hasPremiumAccess
@@ -130,10 +64,8 @@ export default function PublicLayout({
       ? "/dashboard"
       : "/";
 
-
   return (
     <div className="min-h-screen flex flex-col relative">
-      {/* Top bar */}
       <header
         data-testid="public-header"
         className="sticky top-0 z-40 backdrop-blur-xl bg-black/70 border-b border-white/5"
@@ -151,34 +83,28 @@ export default function PublicLayout({
             />
           </NavLink>
 
-          <nav className="hidden md:flex items-center gap-8">
-            {navItems
-              .slice(0, 4)
-              .map((it) => (
-                <NavLink
-                  key={it.to}
-                  to={it.to}
-                  data-testid={`desktop-${it.testid}`}
-                  className={({
-                    isActive,
-                  }) =>
-                    `text-sm font-medium tracking-wide transition-colors ${
-                      isActive
-                        ? "text-[#CCFF00]"
-                        : "text-white/70 hover:text-white"
-                    }`
-                  }
-                >
-                  {it.label}
-                </NavLink>
-              ))}
+          <nav className="hidden md:flex items-center gap-5 lg:gap-7">
+            {navItems.slice(0, 4).map((it) => (
+              <NavLink
+                key={it.to}
+                to={it.to}
+                data-testid={`desktop-${it.testid}`}
+                className={({ isActive }) =>
+                  `text-sm font-medium tracking-wide transition-colors ${
+                    isActive
+                      ? "text-[#CCFF00]"
+                      : "text-white/70 hover:text-white"
+                  }`
+                }
+              >
+                {it.label}
+              </NavLink>
+            ))}
 
             <NavLink
               to="/historico"
               data-testid="desktop-nav-historico"
-              className={({
-                isActive,
-              }) =>
+              className={({ isActive }) =>
                 `text-sm font-medium tracking-wide transition-colors ${
                   isActive
                     ? "text-[#CCFF00]"
@@ -190,11 +116,23 @@ export default function PublicLayout({
             </NavLink>
 
             <NavLink
+              to="/performance"
+              data-testid="desktop-nav-performance"
+              className={({ isActive }) =>
+                `text-sm font-medium tracking-wide transition-colors ${
+                  isActive
+                    ? "text-[#CCFF00]"
+                    : "text-white/70 hover:text-white"
+                }`
+              }
+            >
+              Performance
+            </NavLink>
+
+            <NavLink
               to="/planos"
               data-testid="desktop-nav-planos"
-              className={({
-                isActive,
-              }) =>
+              className={({ isActive }) =>
                 `text-sm font-medium tracking-wide transition-colors ${
                   isActive
                     ? "text-[#CCFF00]"
@@ -206,7 +144,21 @@ export default function PublicLayout({
             </NavLink>
           </nav>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3">
+            <NavLink
+              to="/performance"
+              aria-label="Performance"
+              className={({ isActive }) =>
+                `md:hidden h-8 w-8 rounded-full border grid place-items-center transition-colors ${
+                  isActive
+                    ? "border-[#CCFF00]/40 text-[#CCFF00] bg-[#CCFF00]/10"
+                    : "border-white/10 text-white/55"
+                }`
+              }
+            >
+              <BarChart3 size={15} />
+            </NavLink>
+
             {user ? (
               <NavLink
                 to="/conta"
@@ -214,17 +166,11 @@ export default function PublicLayout({
                 className="flex items-center gap-2 text-sm text-white/80 hover:text-white"
               >
                 <span className="hidden sm:inline">
-                  {
-                    user.name.split(
-                      " "
-                    )[0]
-                  }
+                  {user.name.split(" ")[0]}
                 </span>
 
                 <span className="h-8 w-8 rounded-full bg-[#CCFF00] text-black grid place-items-center text-xs font-bold">
-                  {user.name
-                    .slice(0, 1)
-                    .toUpperCase()}
+                  {user.name.slice(0, 1).toUpperCase()}
                 </span>
               </NavLink>
             ) : (
@@ -254,7 +200,6 @@ export default function PublicLayout({
         {children}
       </main>
 
-      {/* Footer */}
       <footer className="hidden md:block border-t border-white/5 bg-black/40">
         <div className="max-w-7xl mx-auto px-8 py-10 grid grid-cols-1 md:grid-cols-3 gap-8">
           <div>
@@ -265,8 +210,8 @@ export default function PublicLayout({
             />
 
             <p className="text-sm text-white/50 max-w-sm">
-              Inteligência esportiva, análises e bilhetes transparentes. Vértice Sports
-              não é uma casa de apostas.
+              Inteligência esportiva, análises e bilhetes transparentes.
+              Vértice Sports não é uma casa de apostas.
             </p>
           </div>
 
@@ -278,47 +223,38 @@ export default function PublicLayout({
             <ul className="space-y-2 text-sm text-white/60">
               {hasPremiumAccess && (
                 <li>
-                  <NavLink
-                    to="/dashboard"
-                    className="hover:text-white"
-                  >
+                  <NavLink to="/dashboard" className="hover:text-white">
                     Meu painel
                   </NavLink>
                 </li>
               )}
 
               <li>
-                <NavLink
-                  to="/bilhetes"
-                  className="hover:text-white"
-                >
+                <NavLink to="/bilhetes" className="hover:text-white">
                   Bilhetes
                 </NavLink>
               </li>
 
               <li>
-                <NavLink
-                  to="/historico"
-                  className="hover:text-white"
-                >
+                <NavLink to="/historico" className="hover:text-white">
                   Histórico
                 </NavLink>
               </li>
 
               <li>
-                <NavLink
-                  to="/planos"
-                  className="hover:text-white"
-                >
+                <NavLink to="/performance" className="hover:text-white">
+                  Performance
+                </NavLink>
+              </li>
+
+              <li>
+                <NavLink to="/planos" className="hover:text-white">
                   Planos
                 </NavLink>
               </li>
 
               <li>
-                <NavLink
-                  to="/calendario"
-                  className="hover:text-white"
-                >
+                <NavLink to="/calendario" className="hover:text-white">
                   Calendário
                 </NavLink>
               </li>
@@ -332,28 +268,19 @@ export default function PublicLayout({
 
             <ul className="space-y-2 text-sm text-white/60">
               <li>
-                <NavLink
-                  to="/login"
-                  className="hover:text-white"
-                >
+                <NavLink to="/login" className="hover:text-white">
                   Login
                 </NavLink>
               </li>
 
               <li>
-                <NavLink
-                  to="/cadastro"
-                  className="hover:text-white"
-                >
+                <NavLink to="/cadastro" className="hover:text-white">
                   Cadastro
                 </NavLink>
               </li>
 
               <li>
-                <NavLink
-                  to="/recuperar-senha"
-                  className="hover:text-white"
-                >
+                <NavLink to="/recuperar-senha" className="hover:text-white">
                   Recuperar senha
                 </NavLink>
               </li>
@@ -366,7 +293,6 @@ export default function PublicLayout({
         </div>
       </footer>
 
-      {/* Mobile bottom nav */}
       <nav
         data-testid="mobile-bottom-nav"
         className="md:hidden fixed bottom-0 inset-x-0 z-40 bg-black/80 backdrop-blur-xl border-t border-white/10"
@@ -374,10 +300,8 @@ export default function PublicLayout({
         <ul className="grid grid-cols-5">
           {navItems.map((it) => {
             const Icon = it.icon;
-
             const active =
-              location.pathname ===
-              it.to;
+              location.pathname === it.to;
 
             return (
               <li key={it.to}>
@@ -392,16 +316,10 @@ export default function PublicLayout({
                 >
                   <Icon
                     size={20}
-                    strokeWidth={
-                      active
-                        ? 2.5
-                        : 2
-                    }
+                    strokeWidth={active ? 2.5 : 2}
                   />
 
-                  <span>
-                    {it.label}
-                  </span>
+                  <span>{it.label}</span>
                 </NavLink>
               </li>
             );
