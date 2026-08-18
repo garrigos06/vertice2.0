@@ -32,22 +32,33 @@
 
 * {
   border-color: hsl(var(--border));
+  box-sizing: border-box;
 }
 
-html,
+html {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+  -webkit-text-size-adjust: 100%;
+}
+
 body,
 #root {
   background-color: hsl(var(--background));
   color: hsl(var(--foreground));
   min-height: 100vh;
+  width: 100%;
+  max-width: 100%;
 }
 
 body {
   margin: 0;
+  overflow-x: hidden;
   font-family: "Manrope", ui-sans-serif, system-ui, -apple-system, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-image: radial-gradient(
+  background-image:
+    radial-gradient(
       1200px 800px at 100% -10%,
       rgba(204, 255, 0, 0.06),
       transparent 60%
@@ -59,6 +70,70 @@ body {
     );
 }
 
+img,
+svg,
+video {
+  max-width: 100%;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+input,
+select,
+textarea {
+  min-width: 0;
+  max-width: 100%;
+}
+
+textarea {
+  overflow-wrap: anywhere;
+}
+
+select {
+  color-scheme: dark;
+}
+
+option {
+  background: #0b0b0b;
+  color: #fff;
+}
+
+/*
+ * iOS/Safari aplica zoom automÃ¡tico em campos abaixo de 16px.
+ * 16px no mobile mantÃ©m o layout estÃ¡vel tanto no site pÃºblico
+ * quanto no painel administrativo.
+ */
+@media (max-width: 767px) {
+  input:not([type="checkbox"]):not([type="radio"]),
+  select,
+  textarea {
+    font-size: 16px !important;
+  }
+
+  main {
+    min-width: 0;
+    max-width: 100vw;
+  }
+
+  .vs-card {
+    max-width: 100%;
+  }
+
+  h1,
+  h2,
+  h3,
+  p,
+  span,
+  div {
+    overflow-wrap: break-word;
+  }
+}
+
 .font-display {
   font-family: "Clash Display", "Manrope", ui-sans-serif, system-ui, sans-serif;
   letter-spacing: -0.02em;
@@ -68,9 +143,12 @@ body {
   font-family: "JetBrains Mono", ui-monospace, "SFMono-Regular", monospace;
 }
 
-/* Utility classes for premium look */
 .vs-card {
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0));
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.02),
+    rgba(255, 255, 255, 0)
+  );
   border: 1px solid rgba(255, 255, 255, 0.06);
   border-radius: 14px;
 }
@@ -93,11 +171,16 @@ body {
   mix-blend-mode: overlay;
 }
 
-/* Skeleton shimmer */
 @keyframes vs-shimmer {
-  0% { background-position: -400px 0; }
-  100% { background-position: 400px 0; }
+  0% {
+    background-position: -400px 0;
+  }
+
+  100% {
+    background-position: 400px 0;
+  }
 }
+
 .vs-skeleton {
   background: linear-gradient(
     90deg,
@@ -110,17 +193,34 @@ body {
   border-radius: 8px;
 }
 
-/* Custom scrollbar */
-::-webkit-scrollbar { width: 10px; height: 10px; }
-::-webkit-scrollbar-thumb { background: #1f1f1f; border-radius: 999px; }
-::-webkit-scrollbar-thumb:hover { background: #2a2a2a; }
-::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #1f1f1f;
+  border-radius: 999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #2a2a2a;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
 
 ::selection {
   background: rgba(204, 255, 0, 0.35);
   color: #000;
 }
 
-/* Hide scrollbar for horizontal chip rows */
-.no-scrollbar::-webkit-scrollbar { display: none; }
-.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
